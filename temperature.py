@@ -8,7 +8,7 @@ from time import sleep
 
 from console import util
 from props.ai import AnalogInputProps
-
+import sys
 
 use_device_detection = True
 
@@ -16,6 +16,7 @@ use_device_detection = True
 def run_example():
     board_num = 0
 
+    util.clear_screen()
     if use_device_detection:
         ul.ignore_instacal()
         devices = util.detect_devices()
@@ -38,12 +39,10 @@ def run_example():
     if ai_props.num_ti_chans < 1:
         util.print_unsupported_example(board_num)
         return
-
-    index = 0
-    for ti_chan in range(0, ai_props.num_ti_chans):
-        print(str(ti_chan), sep = ', ', end = '')
-
-    channel = int(input('\nSelect channel: '))
+    print('\nChannels: 0', end = '')
+    for ti_chan in range(1, ai_props.num_ti_chans):
+        print(', ' + str(ti_chan), end = '')
+    channel = int(input('\n\nChannel selected: '))
     util.clear_screen()
 
     print("Device " + str(board_num) + " selected: " +
@@ -55,7 +54,7 @@ def run_example():
             value = ul.t_in(board_num, channel, TempScale.CELSIUS)
 
             # Display the value
-            util.print_at(2, 2, "Channel " + str(channel) + " Value (deg C): " + str(value))
+            util.print_at(2, 2, "Channel " + str(channel) + " value (deg C): " + str(value))
             sleep(0.5)
         print()
     except ULError as e:

@@ -3,9 +3,9 @@ from __future__ import absolute_import, division, print_function
 from builtins import *  # @UnusedWildImport
 
 from mcculw import ul
-from mcculw.enums import CounterChannelType
+from mcculw.enums import DigitalIODirection
 from console import util
-from props.counter import CounterProps
+from props.digital import DigitalProps
 from mcculw.ul import ULError
 from time import sleep
 
@@ -34,34 +34,43 @@ def run_example():
             util.print_ul_error(e)
             return
 
-    ctr_props = CounterProps(board_num)
-    if ctr_props.num_chans < 1:
+    digital_props = DigitalProps(board_num)
+
+    # Find the first port that supports input, defaulting to None
+    # if one is not found.
+    port = next(
+        (port for port in digital_props.port_info
+         if port.supports_input), None)
+    if port == None:
         util.print_unsupported_example(board_num)
         return
 
+    index = 0
     separator = ''
-    print('\nCounter numbers: ', end = '')
-    for channel in ctr_props.counter_info:
-        if (channel.type == CounterChannelType.CTREVENT) \
-           or (channel.type == CounterChannelType.CTRSCAN):
-                print(separator + str(channel.channel_num), end = '')
-                separator = ', '
-    counter_num = int(input('\n\nChannel selected: '))
-    util.clear_screen()
-
-    print("Device " + str(board_num) + " selected: " +
-          device.product_name + " (" + device.unique_id + ")")
-
+    for port in digital_props.port_info:
+        print(separator + str(index), end = '')
+        print(port.type)
+        index += 1
+        separator = ', '
+    port_index = int(input('\n\nChannel selected: '))
+    port = digital_props.port_info[port_index]
+        
     try:
-        ul.c_clear(board_num, counter_num)
-        for x in range(0, 100):
-            # Get a value from the device
-            value = ul.c_in_32(board_num, counter_num)
-            # Display the value
-            util.print_at(2, 2, "Counter " +
-                          str(counter_num) + " value: " + str(value))
-            print()
-            sleep(0.2)
+        # If the port is configurable, configure it for input.
+        if port.is_port_configurable:
+            ul.d_config_port(board_num, port.type, DigitalIODirection.IN)
+
+        # Get a value from the digital port
+        port_value = ul.d_in(board_num, port.type)
+
+        # Get a value from the first digital bit
+        bit_num = 0
+        bit_value = ul.d_bit_in(board_num, port.type, bit_num)
+
+        # Display the port value
+        print(port.type.name + " Value: " + str(port_value))
+        # Display the bit value
+        print("Bit " + str(bit_num) + " Value: " + str(bit_value))
     except ULError as e:
         util.print_ul_error(e)
     finally:

@@ -1,13 +1,17 @@
 from __future__ import absolute_import, division, print_function
 
-from builtins import *  # @UnusedWildImport
+import time
+from time import sleep
+import sys
 
+from builtins import *  # @UnusedWildImport
 from mcculw import ul
 from mcculw.enums import CounterChannelType
+from mcculw.ul import ULError
+
 from console import util
 from props.counter import CounterProps
-from mcculw.ul import ULError
-from time import sleep
+
 
 use_device_detection = True
 
@@ -35,33 +39,51 @@ def run_example():
             return
 
     ctr_props = CounterProps(board_num)
-    if ctr_props.num_chans < 1:
+
+    # Find a pulse timer channel on the board
+    first_chan = next(
+        (channel for channel in ctr_props.counter_info
+         if channel.type == CounterChannelType.CTRPULSE), None)
+
+    if first_chan == None:
         util.print_unsupported_example(board_num)
         return
 
     separator = ''
-    print('\nCounter numbers: ', end = '')
+    print('\nTimer numbers: ', end = '')
     for channel in ctr_props.counter_info:
-        if (channel.type == CounterChannelType.CTREVENT) \
-           or (channel.type == CounterChannelType.CTRSCAN):
-                print(separator + str(channel.channel_num), end = '')
-                separator = ', '
-    counter_num = int(input('\n\nChannel selected: '))
+        if (channel.type == CounterChannelType.CTRPULSE):
+            print(separator + str(channel.channel_num), end = '')
+            separator = ', '
+    timer_num = int(input('\n\nTimer selected: '))
     util.clear_screen()
 
     print("Device " + str(board_num) + " selected: " +
           device.product_name + " (" + device.unique_id + ")")
+    #timer_num = first_chan.channel_num
+    frequency = 100
+    duty_cycle = 0.5
 
     try:
-        ul.c_clear(board_num, counter_num)
-        for x in range(0, 100):
-            # Get a value from the device
-            value = ul.c_in_32(board_num, counter_num)
-            # Display the value
-            util.print_at(2, 2, "Counter " +
-                          str(counter_num) + " value: " + str(value))
-            print()
-            sleep(0.2)
+        # Start the pulse timer output (optional parameters omitted)
+        actual_frequency, actual_duty_cycle, _ = ul.pulse_out_start(
+            board_num, timer_num, frequency, duty_cycle)
+
+        # Print information about the output
+        print(
+            "\nOutputting " + str(actual_frequency)
+            + " Hz with a duty cycle of " + str(actual_duty_cycle)
+            + " to pulse timer channel " + str(timer_num) + ".")
+
+        # Wait for 5 seconds
+        for x in range(0, 10):
+            print('.', sep = ' ', end = '', file=sys.stdout, flush=True)
+            time.sleep(0.5)
+
+        # Stop the pulse timer output
+        ul.pulse_out_stop(board_num, timer_num)
+
+        print("\n\nTimer output stopped.")
     except ULError as e:
         util.print_ul_error(e)
     finally:
