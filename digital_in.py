@@ -46,31 +46,40 @@ def run_example():
         return
 
     index = 0
-    separator = ''
+    print()
     for port in digital_props.port_info:
-        print(separator + str(index), end = '')
+        print(str(index) + ') ', end = '')
         print(port.type)
         index += 1
-        separator = ', '
     port_index = int(input('\n\nChannel selected: '))
     port = digital_props.port_info[port_index]
         
+    util.clear_screen()
+    print("Device " + str(board_num) + " selected: " +
+          device.product_name + " (" + device.unique_id + ")")
+    print()
     try:
         # If the port is configurable, configure it for input.
         if port.is_port_configurable:
             ul.d_config_port(board_num, port.type, DigitalIODirection.IN)
 
-        # Get a value from the digital port
-        port_value = ul.d_in(board_num, port.type)
+        for x in range(0, 100):
+            # Get a value from the digital port
+            port_value = ul.d_in(board_num, port.type)
+            # Display the port value
+            util.print_at(2, 2, port.type.name + " value: \t" + str(port_value))
 
-        # Get a value from the first digital bit
-        bit_num = 0
-        bit_value = ul.d_bit_in(board_num, port.type, bit_num)
-
-        # Display the port value
-        print(port.type.name + " Value: " + str(port_value))
-        # Display the bit value
-        print("Bit " + str(bit_num) + " Value: " + str(bit_value))
+            # Get a value from the first digital bit
+            index = 0
+            bits = port.num_bits
+            bit_port = digital_props.port_info[0]
+            for bit_num in range(0, bits):
+                bit_value = ul.d_bit_in(board_num, bit_port.type, bit_num)
+                # Display the bit value
+                util.print_at(4 + index, 2, "  Bit " + str(bit_num) + " value: \t" + str(bit_value))
+                index += 1
+            print()
+            sleep(0.2)
     except ULError as e:
         util.print_ul_error(e)
     finally:
