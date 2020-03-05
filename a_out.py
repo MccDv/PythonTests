@@ -6,13 +6,13 @@ import time
 from builtins import *  # @UnusedWildImport
 
 from mcculw import ul
-from mcculw.enums import FunctionType, Status
+from mcculw.enums import FunctionType, Status, BoardInfo, InfoType, ULRange
 from console import util
 from props.ao import AnalogOutputProps
 from mcculw.ul import ULError
 from time import sleep
 
-use_device_detection = True
+use_device_detection = False
 
 
 def run_example():
@@ -30,13 +30,29 @@ def run_example():
             # Add the device to the UL.
             device = devices[board_num]
             ul.create_daq_device(board_num, device)
-            util.clear_screen()
-            print("Device " + str(board_num) + " selected: " +
-                  device.product_name + " (" + device.unique_id + ")")
+            prod_name = device.product_name
+            prod_id = device.unique_id
+        except ULError as e:
+            util.print_ul_error(e)
+            return
+    else:
+        try:
+            board_list = util.get_installed_boards()
+            print('Boards installed: ' + str(board_list))
+            board_num = int(input('\nEnter device number (default 0): ') or '0')
+            prod_name = ul.get_board_name(board_num)
+            info_type = InfoType.BOARDINFO
+            config_item = BoardInfo.DEVUNIQUEID
+            max_config_len = 32
+            prod_id = ul.get_config_string(info_type, board_num, 0, config_item, max_config_len)
         except ULError as e:
             util.print_ul_error(e)
             return
 
+    util.clear_screen()
+    print("Device " + str(board_num) + " selected: " +
+          prod_name + " (" + prod_id + ")")
+    
     ao_props = AnalogOutputProps(board_num)
     if ao_props.num_chans < 1:
         util.print_unsupported_example(board_num)
@@ -52,23 +68,31 @@ def run_example():
     util.clear_screen()
 
     print("Device " + str(board_num) + " selected: " +
-          device.product_name + " (" + device.unique_id + ")")
+          prod_name + " (" + prod_id+ ")")
     print()
 
-    index = 0
-    for ao_range in ao_props.available_ranges:
-        print(str(index) + ": ", ao_range, sep = " ")
-        index += 1
+    #check for configured range per channel
+    info_type = InfoType.BOARDINFO
+    config_item = BoardInfo.DACRANGE
+    hard_range = ul.get_config(info_type, board_num, chan, config_item)
+    if hard_range not in ao_props.available_ranges:
+        print("0: ", ULRange(hard_range).name)
+    else:
+        index = 0
+        for ao_range in ao_props.available_ranges:
+            print(str(index) + ": ", ao_range, sep = " ")
+            index += 1
+
     range_index = int(input('\nSelect range (default 0): ') or '0')
     util.clear_screen()
     ao_range = ao_props.available_ranges[range_index]
     print("Device " + str(board_num) + " selected: " +
-          device.product_name + " (" + device.unique_id + ")")
+          prod_name + " (" + prod_id + ")")
 
     loop_count = int(input('\nEnter loop count (default 50): ') or '50')
     util.clear_screen()
     print("Device " + str(board_num) + " selected: " +
-          device.product_name + " (" + device.unique_id + ")")
+          prod_name + " (" + prod_id + ")")
     index = 0
     data_value = 2**ao_props.resolution - 1
     try:

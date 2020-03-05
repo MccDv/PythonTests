@@ -4,7 +4,7 @@ import os
 import sys
 
 from mcculw import ul
-from mcculw.enums import InterfaceType
+from mcculw.enums import InterfaceType, BoardInfo, InfoType, GlobalInfo
 
 STD_OUTPUT_HANDLE = -11
 
@@ -92,6 +92,20 @@ def memhandle_as_ctypes_array_32(memhandle):
 
 def memhandle_as_ctypes_array_scaled(memhandle):
     return ctypes.cast(memhandle, ctypes.POINTER(ctypes.c_double))
+
+def get_installed_boards():
+    board_list = []
+    info_type = InfoType.GLOBALINFO
+    config_item = GlobalInfo.NUMBOARDS
+    max_boards = ul.get_config(info_type, 0, 0, config_item)
+    info_type = InfoType.BOARDINFO
+    config_item = BoardInfo.BOARDTYPE
+    for board in range(0, max_boards):
+        board_type = ul.get_config(info_type, board, 0, config_item)
+        if not board_type == 0:
+            board_list.append(board)
+        
+    return board_list
 
 def print_at(r, c, s):
     h = windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
