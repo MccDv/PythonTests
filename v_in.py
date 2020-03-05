@@ -63,6 +63,7 @@ def run_example():
                 value = ul.v_in_32(board_num, channel, ai_range)
 
             # Display the value
+            util.clear_line(2, 2)
             util.print_at(2, 2, "Value: \t" + str(value) + "\n")
             print()
             sleep(0.2)
