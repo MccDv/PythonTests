@@ -4,7 +4,7 @@ from builtins import *  # @UnusedWildImport
 
 from mcculw import ul
 from mcculw.enums import DigitalIODirection
-#from mcculw.enums import DigitalPortType
+from mcculw.enums import DigitalPortType
 from console import util
 from props.digital import DigitalProps
 from mcculw.ul import ULError
@@ -41,7 +41,7 @@ def run_example():
     # if one is not found.
     port = next(
         (port for port in digital_props.port_info
-         if port.supports_input), None)
+         if port.supports_output), None)
     if port == None:
         util.print_unsupported_example(board_num)
         return
@@ -66,28 +66,41 @@ def run_example():
           device.product_name + " (" + device.unique_id + ")")
     print()
     try:
-        # If the port is configurable, configure it for input.
+        # If the port is configurable, configure it for output.
         if port.is_port_configurable:
-            ul.d_config_port(board_num, port.type, DigitalIODirection.IN)
+            ul.d_config_port(board_num, port.type, DigitalIODirection.OUT)
 
+        bits = port.num_bits
+        max_value = 2**bits - 1
+        one_value = 0x5555
+        other_value = 0xAAAA
+
+        port_value = max_value & one_value
         for x in range(0, 100):
-            # Get a value from the digital port
-            port_value = ul.d_in(board_num, port.type)
-            # Display the port value
-            util.print_at(2, 2, port.type.name + " value: \t" + str(port_value))
+            util.print_at(2, 2, 
+                "Setting " + port.type.name + " to " + str(port_value) + ".")
 
-            # Get a value from the first digital bit
+            # Output the value to the port
+            ul.d_out(board_num, port.type, port_value)
+
+            bit_num = 0
+            bit_value = 0
             index = 0
-            bits = port.num_bits
+            
             bit_port = DigitalPortType.FIRSTPORTA
             if port.type < DigitalPortType.FIRSTPORTA:
                 bit_port = DigitalPortType.AUXPORT
             for bit_num in range(bit_list[port_index], bit_list[port_index] + bits):
-                bit_value = ul.d_bit_in(board_num, bit_port, bit_num)
-                # Display the bit value
-                util.print_at(4 + index, 2, "  Bit " + str(bit_num) + " value: \t" + str(bit_value))
+                bit_value = 2**index & port_value
+                util.print_at(4 + index, 2, bit_port.name + " bit " +
+                      str(bit_num) + " value: " + str(bit_value))
+
+                # Output the value to the bit
+                ul.d_bit_out(board_num, bit_port, bit_num, bit_value)
                 index += 1
             print()
+            port_value = max_value & one_value
+            one_value = one_value ^ max_value
             sleep(0.2)
     except ULError as e:
         util.print_ul_error(e)
