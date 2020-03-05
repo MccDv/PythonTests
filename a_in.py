@@ -50,8 +50,12 @@ def run_example():
     print("Device " + str(board_num) + " selected: " +
           device.product_name + " (" + device.unique_id + ")")
     
+    loop_count = int(input('\nEnter loop count (default 50): ') or '50')
+    util.clear_screen()
+    print("Device " + str(board_num) + " selected: " +
+          device.product_name + " (" + device.unique_id + ")")
     try:
-        for x in range(0, 100):
+        for x in range(0, loop_count):
             # Get a value from the device
             if ai_props.resolution <= 16:
                 # Use the a_in method for devices with a resolution <= 16

@@ -65,10 +65,14 @@ def run_example():
     print("Device " + str(board_num) + " selected: " +
           device.product_name + " (" + device.unique_id + ")")
 
+    loop_count = int(input('\nEnter loop count (default 50): ') or '50')
+    util.clear_screen()
+    print("Device " + str(board_num) + " selected: " +
+          device.product_name + " (" + device.unique_id + ")")
     index = 0
     data_value = 2**ao_props.resolution - 1
     try:
-        for x in range(0, 50):
+        for x in range(0, loop_count):
             # Write output value
             out_data = (index % 2) * data_value
             ul.a_out(board_num, chan, ao_range, out_data)

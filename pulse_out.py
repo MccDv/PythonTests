@@ -27,7 +27,7 @@ def run_example():
             print("Could not find device.")
             return
         try:
-            board_num = int(input('\nEnter device number: '))
+            board_num = int(input('\nEnter device number (default 0): ') or '0')
             # Add the device to the UL.
             device = devices[board_num]
             ul.create_daq_device(board_num, device)
@@ -55,7 +55,7 @@ def run_example():
         if (channel.type == CounterChannelType.CTRPULSE):
             print(separator + str(channel.channel_num), end = '')
             separator = ', '
-    timer_num = int(input('\n\nTimer selected: '))
+    timer_num = int(input('\n\nTimer selected (default 0): ') or '0')
     util.clear_screen()
 
     print("Device " + str(board_num) + " selected: " +
@@ -64,6 +64,10 @@ def run_example():
     frequency = 100
     duty_cycle = 0.5
 
+    loop_count = 2 * int(input('\nEnter seconds to output pulses (default 5): ') or '5')
+    util.clear_screen()
+    print("Device " + str(board_num) + " selected: " +
+          device.product_name + " (" + device.unique_id + ")")
     try:
         # Start the pulse timer output (optional parameters omitted)
         actual_frequency, actual_duty_cycle, _ = ul.pulse_out_start(
@@ -75,8 +79,8 @@ def run_example():
             + " Hz with a duty cycle of " + str(actual_duty_cycle)
             + " to pulse timer channel " + str(timer_num) + ".")
 
-        # Wait for 5 seconds
-        for x in range(0, 10):
+        # Wait for specified seconds
+        for x in range(0, loop_count):
             print('.', sep = ' ', end = '', file=sys.stdout, flush=True)
             time.sleep(0.5)
 

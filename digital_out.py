@@ -24,7 +24,7 @@ def run_example():
             print("Could not find device.")
             return
         try:
-            board_num = int(input('\nEnter device number: '))
+            board_num = int(input('\nEnter device number (default 0): ') or '0')
             # Add the device to the UL.
             device = devices[board_num]
             ul.create_daq_device(board_num, device)
@@ -58,9 +58,14 @@ def run_example():
         bit_list.append(first_bit)
         first_bit = port.num_bits + bit_list[index]
         index += 1
-    port_index = int(input('\n\nChannel selected: '))
+    port_index = int(input('\n\nChannel selected (default 0): ') or '0')
     port = digital_props.port_info[port_index]
         
+    util.clear_screen()
+    print("Device " + str(board_num) + " selected: " +
+          device.product_name + " (" + device.unique_id + ")")
+
+    loop_count = int(input('\nEnter loop count (default 50): ') or '50')
     util.clear_screen()
     print("Device " + str(board_num) + " selected: " +
           device.product_name + " (" + device.unique_id + ")")
@@ -75,7 +80,7 @@ def run_example():
         one_value = 0x5555
 
         port_value = max_value & one_value
-        for x in range(0, 100):
+        for x in range(0, loop_count):
             util.clear_line(2, 2)
             util.print_at(2, 2, 
                 "Setting " + port.type.name + " to " + str(port_value))

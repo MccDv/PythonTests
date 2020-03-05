@@ -24,7 +24,7 @@ def run_example():
             print("Could not find device.")
             return
         try:
-            board_num = int(input('\nEnter device number: '))
+            board_num = int(input('\nEnter device number (default 0): ') or '0')
             # Add the device to the UL.
             device = devices[board_num]
             ul.create_daq_device(board_num, device)
@@ -42,14 +42,17 @@ def run_example():
     print('\nChannels: 0', end = '')
     for ti_chan in range(1, ai_props.num_ti_chans):
         print(', ' + str(ti_chan), end = '')
-    channel = int(input('\n\nChannel selected: '))
+    channel = int(input('\n\nChannel selected (default 0): ') or '0')
     util.clear_screen()
-
     print("Device " + str(board_num) + " selected: " +
           device.product_name + " (" + device.unique_id + ")")
 
+    loop_count = int(input('\nEnter loop count (default 50): ') or '50')
+    util.clear_screen()
+    print("Device " + str(board_num) + " selected: " +
+          device.product_name + " (" + device.unique_id + ")")
     try:
-        for x in range(0, 50):
+        for x in range(0, loop_count):
             # Get the value from the device (optional parameters omitted)
             value = ul.t_in(board_num, channel, TempScale.CELSIUS)
 

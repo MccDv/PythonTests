@@ -23,7 +23,7 @@ def run_example():
             print("Could not find device.")
             return
         try:
-            board_num = int(input('\nEnter device number: '))
+            board_num = int(input('\nEnter device number (default 0): ') or '0')
             # Add the device to the UL.
             device = devices[board_num]
             ul.create_daq_device(board_num, device)
@@ -46,15 +46,19 @@ def run_example():
            or (channel.type == CounterChannelType.CTRSCAN):
                 print(separator + str(channel.channel_num), end = '')
                 separator = ', '
-    counter_num = int(input('\n\nChannel selected: '))
+    counter_num = int(input('\n\nChannel selected (default 0): ') or '0')
     util.clear_screen()
 
     print("Device " + str(board_num) + " selected: " +
           device.product_name + " (" + device.unique_id + ")")
 
+    loop_count = int(input('\nEnter loop count (default 50): ') or '50')
+    util.clear_screen()
+    print("Device " + str(board_num) + " selected: " +
+          device.product_name + " (" + device.unique_id + ")")
     try:
         ul.c_clear(board_num, counter_num)
-        for x in range(0, 100):
+        for x in range(0, loop_count):
             # Get a value from the device
             value = ul.c_in_32(board_num, counter_num)
             # Display the value
