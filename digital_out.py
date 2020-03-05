@@ -73,12 +73,12 @@ def run_example():
         bits = port.num_bits
         max_value = 2**bits - 1
         one_value = 0x5555
-        other_value = 0xAAAA
 
         port_value = max_value & one_value
         for x in range(0, 100):
+            util.clear_line(2, 2)
             util.print_at(2, 2, 
-                "Setting " + port.type.name + " to " + str(port_value) + ".")
+                "Setting " + port.type.name + " to " + str(port_value))
 
             # Output the value to the port
             ul.d_out(board_num, port.type, port_value)
@@ -92,6 +92,7 @@ def run_example():
                 bit_port = DigitalPortType.AUXPORT
             for bit_num in range(bit_list[port_index], bit_list[port_index] + bits):
                 bit_value = 2**index & port_value
+                util.clear_line(4 + index, 2)
                 util.print_at(4 + index, 2, bit_port.name + " bit " +
                       str(bit_num) + " value: " + str(bit_value))
 

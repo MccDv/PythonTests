@@ -4,7 +4,7 @@ from builtins import *  # @UnusedWildImport
 
 from mcculw import ul
 from mcculw.enums import DigitalIODirection
-#from mcculw.enums import DigitalPortType
+from mcculw.enums import DigitalPortType
 from console import util
 from props.digital import DigitalProps
 from mcculw.ul import ULError
@@ -74,6 +74,7 @@ def run_example():
             # Get a value from the digital port
             port_value = ul.d_in(board_num, port.type)
             # Display the port value
+            util.clear_line(2, 2)
             util.print_at(2, 2, port.type.name + " value: \t" + str(port_value))
 
             # Get a value from the first digital bit
@@ -85,6 +86,7 @@ def run_example():
             for bit_num in range(bit_list[port_index], bit_list[port_index] + bits):
                 bit_value = ul.d_bit_in(board_num, bit_port, bit_num)
                 # Display the bit value
+                util.clear_line(4 + index, 2)
                 util.print_at(4 + index, 2, "  Bit " + str(bit_num) + " value: \t" + str(bit_value))
                 index += 1
             print()

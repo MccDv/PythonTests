@@ -68,7 +68,8 @@ def run_example():
                 fmt = '{:.5f}'
 
             # Display the raw value
-            util.print_at(2, 2, "Raw Value: \t\t" + str(value))
+            util.clear_line(2, 2)
+            util.print_at(2, 2, "Raw value: \t\t" + str(value))
             # Display the engineering value
             util.print_at(4, 2, "Engineering Value: \t" + fmt.format(eng_units_value))
             print()
