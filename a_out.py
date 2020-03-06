@@ -12,12 +12,15 @@ from props.ao import AnalogOutputProps
 from mcculw.ul import ULError
 from time import sleep
 
-use_device_detection = False
-
-
 def run_example():
-    board_num = 0
 
+    util.clear_screen()
+    board_num = 0
+    use_device_detection = True
+    response = input('\nUse Instacal? (default n): ') or 'n'
+    if response == 'y':
+        use_device_detection = False
+        
     util.clear_screen()
     if use_device_detection:
         ul.ignore_instacal()
@@ -38,7 +41,7 @@ def run_example():
     else:
         try:
             board_list = util.get_installed_boards()
-            print('Boards installed: ' + str(board_list))
+            print('Board numbers of boards installed with Instacal: ' + str(board_list))
             board_num = int(input('\nEnter device number (default 0): ') or '0')
             prod_name = ul.get_board_name(board_num)
             info_type = InfoType.BOARDINFO
@@ -48,7 +51,6 @@ def run_example():
         except ULError as e:
             util.print_ul_error(e)
             return
-
     util.clear_screen()
     print("Device " + str(board_num) + " selected: " +
           prod_name + " (" + prod_id + ")")

@@ -100,11 +100,18 @@ def get_installed_boards():
     max_boards = ul.get_config(info_type, 0, 0, config_item)
     info_type = InfoType.BOARDINFO
     config_item = BoardInfo.BOARDTYPE
+    #max_boards = 1
     for board in range(0, max_boards):
         board_type = ul.get_config(info_type, board, 0, config_item)
         if not board_type == 0:
             board_list.append(board)
-        
+            prod_name = ul.get_board_name(board)
+            info_type = InfoType.BOARDINFO
+            config_item = BoardInfo.DEVUNIQUEID
+            max_config_len = 32
+            prod_id = ul.get_config_string(info_type, board, 0, config_item, max_config_len)
+            print("Device " + str(board) + ": " + prod_name +
+                  " (" + prod_id + ")")
     return board_list
 
 def print_at(r, c, s):

@@ -2,17 +2,21 @@ from __future__ import absolute_import, division, print_function
 
 from builtins import *  # @UnusedWildImport
 from mcculw import ul
+from mcculw.enums import BoardInfo, InfoType, ULRange
 from mcculw.ul import ULError
 from time import sleep
 
 from console import util
 from props.ai import AnalogInputProps
 
-use_device_detection = True
-
-
 def run_example():
+
+    util.clear_screen()
     board_num = 0
+    use_device_detection = True
+    response = input('\nUse Instacal? (default n): ') or 'n'
+    if response == 'y':
+        use_device_detection = False
 
     util.clear_screen()
     if use_device_detection:
@@ -26,12 +30,27 @@ def run_example():
             # Add the device to the UL.
             device = devices[board_num]
             ul.create_daq_device(board_num, device)
-            util.clear_screen()
-            print("Device " + str(board_num) + " selected: " +
-                  device.product_name + " (" + device.unique_id + ")")
+            prod_name = device.product_name
+            prod_id = device.unique_id
         except ULError as e:
             util.print_ul_error(e)
             return
+    else:
+        try:
+            board_list = util.get_installed_boards()
+            print('Board numbers of boards installed with Instacal: ' + str(board_list))
+            board_num = int(input('\nEnter device number (default 0): ') or '0')
+            prod_name = ul.get_board_name(board_num)
+            info_type = InfoType.BOARDINFO
+            config_item = BoardInfo.DEVUNIQUEID
+            max_config_len = 32
+            prod_id = ul.get_config_string(info_type, board_num, 0, config_item, max_config_len)
+        except ULError as e:
+            util.print_ul_error(e)
+            return
+    util.clear_screen()
+    print("Device " + str(board_num) + " selected: " +
+          prod_name + " (" + prod_id + ")")
 
     channel = 0
 
@@ -39,6 +58,19 @@ def run_example():
     if ai_props.num_ai_chans < 1:
         util.print_unsupported_example(board_num)
         return
+
+    separator = '\t'
+    chan = 0
+    print("\nChannels\n")
+    for chan in range(0, ai_props.num_ai_chans):
+        print(separator + str(chan), end = '')
+        separator = ', '
+    channel = int(input('\n\nChannel selected (default 0): ') or '0')
+    util.clear_screen()
+
+    print("Device " + str(board_num) + " selected: " +
+          prod_name + " (" + prod_id+ ")")
+    print()
 
     index = 0
     for ai_range in ai_props.available_ranges:
@@ -48,12 +80,12 @@ def run_example():
     util.clear_screen()
     ai_range = ai_props.available_ranges[range_index]
     print("Device " + str(board_num) + " selected: " +
-          device.product_name + " (" + device.unique_id + ")")
+          prod_name + " (" + prod_id+ ")")
     
     loop_count = int(input('\nEnter loop count (default 50): ') or '50')
     util.clear_screen()
     print("Device " + str(board_num) + " selected: " +
-          device.product_name + " (" + device.unique_id + ")")
+          prod_name + " (" + prod_id+ ")")
     try:
         for x in range(0, loop_count):
             # Get a value from the device
