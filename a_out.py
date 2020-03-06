@@ -41,8 +41,11 @@ def run_example():
     else:
         try:
             board_list = util.get_installed_boards()
-            print('Board numbers of boards installed with Instacal: ' + str(board_list))
-            board_num = int(input('\nEnter device number (default 0): ') or '0')
+            def_board = str(board_list[0])
+            print('Board numbers of boards installed with Instacal: ' +
+                  str(board_list))
+            board_num = int(input('\nEnter device number (default ' +
+                                  def_board + '): ') or def_board)
             prod_name = ul.get_board_name(board_num)
             info_type = InfoType.BOARDINFO
             config_item = BoardInfo.DEVUNIQUEID

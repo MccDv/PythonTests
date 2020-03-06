@@ -6,16 +6,19 @@ from builtins import *  # @UnusedWildImport
 
 from mcculw import ul
 from mcculw.enums import ScanOptions, FunctionType, Status
+from mcculw.enums import BoardInfo, InfoType, ULRange
 from console import util
 from props.ai import AnalogInputProps
 from mcculw.ul import ULError
 
-use_device_detection = True
-
 def run_example():
+
+    util.clear_screen()
     board_num = 0
-    rate = 100
-    points_per_channel = 1000
+    use_device_detection = True
+    response = input('\nUse Instacal? (default n): ') or 'n'
+    if response == 'y':
+        use_device_detection = False
 
     util.clear_screen()
     if use_device_detection:
@@ -25,37 +28,69 @@ def run_example():
             print("Could not find device.")
             return
         try:
-            board_num = int(input('\nEnter device number: '))
+            board_num = int(input('\nEnter device number (default 0): ') or '0')
             # Add the device to the UL.
             device = devices[board_num]
             ul.create_daq_device(board_num, device)
-            util.clear_screen()
-            print("Device " + str(board_num) + " selected: " +
-                  device.product_name + " (" + device.unique_id + ")")
+            prod_name = device.product_name
+            prod_id = device.unique_id
         except ULError as e:
             util.print_ul_error(e)
             return
+    else:
+        try:
+            board_list = util.get_installed_boards()
+            def_board = str(board_list[0])
+            print('Board numbers of boards installed with Instacal: ' +
+                  str(board_list))
+            board_num = int(input('\nEnter device number (default ' +
+                                  def_board + '): ') or def_board)
+            prod_name = ul.get_board_name(board_num)
+            info_type = InfoType.BOARDINFO
+            config_item = BoardInfo.DEVUNIQUEID
+            max_config_len = 32
+            prod_id = ul.get_config_string(info_type, board_num, 0, config_item, max_config_len)
+        except ULError as e:
+            util.print_ul_error(e)
+            return
+    util.clear_screen()
+    print("Device " + str(board_num) + " selected: " +
+          prod_name + " (" + prod_id + ")")
+    print()
 
     ai_props = AnalogInputProps(board_num)
     if ai_props.num_ai_chans < 1:
         util.print_unsupported_example(board_num)
         return
 
-    low_chan = 0
+    index = 0
+    for ai_range in ai_props.available_ranges:
+        print(str(index) + ": ", ai_range, sep = " ")
+        index += 1
+    range_index = int(input('\nSelect range (default 0): ') or '0')
+    util.clear_screen()
+    ai_range = ai_props.available_ranges[range_index]
+    print("Device " + str(board_num) + " selected: " +
+          prod_name + " (" + prod_id + ")")
+    print()
+
+    rate = int(input('\nSelect rate (default 100): ') or '100')
+    points_per_channel = int(input('Select points per channel (default 1000): ') or '1000')
+    low_chan =  int(input('Select first channel (default 0): ') or '0')
+    def_high_chan = min(3, ai_props.num_ai_chans - 1)
+    def_high = str(def_high_chan)
+    high_chan = int(input('Select last channel (default ' +
+                          def_high + '): ') or def_high)
+    num_chans = high_chan - low_chan + 1
     high_chan = min(3, ai_props.num_ai_chans - 1)
     num_chans = high_chan - low_chan + 1
 
     total_count = points_per_channel * num_chans
 
-    index = 0
-    for ai_range in ai_props.available_ranges:
-        print(str(index) + ": ", ai_range, sep = " ")
-        index += 1
-    range_index = int(input('\nSelect range: '))
     util.clear_screen()
-    ai_range = ai_props.available_ranges[range_index]
     print("Device " + str(board_num) + " selected: " +
-          device.product_name + " (" + device.unique_id + ")\n")
+          prod_name + " (" + prod_id + ")")
+    print()
 
     scan_options = ScanOptions.BACKGROUND
 
@@ -140,6 +175,10 @@ def run_example():
 
             status, curr_count, curr_index = ul.get_status(
                 board_num, FunctionType.AIFUNCTION)
+            s = str(status.name)
+            i = str(curr_index)
+            c = str(curr_count)
+            util.print_at(7, 4, 'Status: ' + s + '\t\tCount: ' + c + '\t\tIndex: ' + i)
 
         # Stop the background operation (this is required even if the
         # scan completes successfully)
