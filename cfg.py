@@ -66,6 +66,7 @@ def run_example():
     util.clear_screen()
     print("Device " + str(board_num) + " selected: " +
           prod_name + " (" + prod_id + ")\n")
+    print('  BoardInfo\n')
     if show_board_info == 'y':
         cfg_len = 24
         index = 0
@@ -134,19 +135,22 @@ def run_example():
                         for dev_num in FirmwareVersionType:
                             cfg_val = ul.get_config_string(InfoType.BOARDINFO, board_num, dev_num, cfg_item, cfg_len)
                             print('   ' + "{:<25}".format(dev_num.name) + '\"' + str(cfg_val) + '\"')
+                            index += 1
                     else:
                         cfg_val = ul.get_config_string(InfoType.BOARDINFO, board_num, 0, cfg_item, cfg_len)
                         print('\"' + str(cfg_val) + '\"')
+                        index += 1
                 else:
                     cfg_val = ul.get_config(InfoType.BOARDINFO, board_num, 0, cfg_item)
                     print(str(cfg_val))
-                if index == 25:
+                    index += 1
+                if index >= 20:
                     index = 0
                     input("\nPress any key...")
                     util.clear_screen()
                     print("Device " + str(board_num) + " selected: " +
                           prod_name + " (" + prod_id + ")\n")
-                index += 1
+                    print('  BoardInfo\n')
                 if cfg_item == BoardInfo.NUMADCHANS:
                     num_ad_found = cfg_val
                 if cfg_item == BoardInfo.NUMDACHANS:
@@ -158,99 +162,117 @@ def run_example():
                 #num_tc_found = cfg_val
             except ULError as e:
                 print('\t\t\t' + e.message)
-                if index == 25:
+                if index >= 20:
                     index = 0
                     input("\nPress any key...")
                     util.clear_screen()
                     print("Device " + str(board_num) + " selected: " +
                           prod_name + " (" + prod_id + ")\n")
+                    print('  BoardInfo\n')
                 index += 1
 
-        input('\n\nBoardInfo listing complete...')
+        input('\nBoardInfo listing complete...')
 
     util.clear_screen()
     print("Device " + str(board_num) + " selected: " +
           prod_name + " (" + prod_id + ")\n")
+    print('  DigitalInfo\n')
     index = 0
     for cfg_item in DigitalInfo:
+        if cfg_item in obs_items:
+            continue
+        if cfg_item in undoc_items:
+            continue
         try:
             print("{:<28}".format(cfg_item.name), end='')
             cfg_val = ul.get_config(InfoType.DIGITALINFO, board_num, 0, cfg_item)
             print(str(cfg_val))
-            if index == 25:
+            if index >= 20:
                 index = 0
                 input("\nPress any key...")
                 util.clear_screen()
                 print("Device " + str(board_num) + " selected: " +
                       prod_name + " (" + prod_id + ")\n")
+                print('  DigitalInfo\n')
             index += 1
         except ULError as e:
             print('\t\t' + e.message)
-            if index == 25:
+            if index >= 20:
                 index = 0
                 input("\nPress any key...")
                 util.clear_screen()
                 print("Device " + str(board_num) + " selected: " +
                       prod_name + " (" + prod_id + ")\n")
+                print('  DigitalInfo\n')
             index += 1
 
-    input('\n\nDigitalInfo listing complete...')
+    input('\nDigitalInfo listing complete...')
 
     util.clear_screen()
     print("Device " + str(board_num) + " selected: " +
           prod_name + " (" + prod_id + ")\n")
+    print('  CounterInfo\n')
     index = 0
     for cfg_item in CounterInfo:
+        if cfg_item in obs_items:
+            continue
+        if cfg_item in undoc_items:
+            continue
         try:
             print("{:<28}".format(cfg_item.name), end='')
             cfg_val = ul.get_config(InfoType.COUNTERINFO, board_num, 0, cfg_item)
             print(str(cfg_val))
-            if index == 25:
+            if index >= 20:
                 index = 0
                 input("\nPress any key...")
                 util.clear_screen()
                 print("Device " + str(board_num) + " selected: " +
                       prod_name + " (" + prod_id + ")\n")
+                print('  CounterInfo\n')
             index += 1
         except ULError as e:
             print('\t\t' + e.message)
-            if index == 25:
+            if index >= 20:
                 index = 0
                 input("\nPress any key...")
                 util.clear_screen()
                 print("Device " + str(board_num) + " selected: " +
                       prod_name + " (" + prod_id + ")\n")
+                print('  CounterInfo\n')
             index += 1
 
-    input('\n\nCounterInfo listing complete...')
+    input('\nCounterInfo listing complete...')
 
     util.clear_screen()
     print("Device " + str(board_num) + " selected: " +
           prod_name + " (" + prod_id + ")\n")
+    print('  ExpansionInfo\n')
     index = 0
     for cfg_item in ExpansionInfo:
         try:
             print("{:<28}".format(cfg_item.name), end='')
             cfg_val = ul.get_config(InfoType.EXPANSIONINFO, board_num, 0, cfg_item)
             print(str(cfg_val))
-            if index == 25:
+            if index >= 20:
                 index = 0
                 input("\nPress any key...")
                 util.clear_screen()
                 print("Device " + str(board_num) + " selected: " +
                       prod_name + " (" + prod_id + ")\n")
+                print('  ExpansionInfo\n')
             index += 1
         except ULError as e:
             print('\t\t' + e.message)
-            if index == 25:
+            if index >= 20:
                 index = 0
                 input("\nPress any key...")
                 util.clear_screen()
                 print("Device " + str(board_num) + " selected: " +
                       prod_name + " (" + prod_id + ")\n")
+                print('  ExpansionInfo\n')
             index += 1
 
-    input('\n\nExpansionInfo listing complete...')
+    input('\nExpansionInfo listing complete...')
 
     util.clear_screen()
 
@@ -258,10 +280,185 @@ def run_example():
           prod_name + " (" + prod_id+ ")\n\n")
     print('\tNumber of A/D channel\'s found:  ' + str(num_ad_found))
     print('\tNumber of D/A channel\'s found:  ' + str(num_da_found))
-    print('\tNumber of Ctr channel\'s found:  ' + str(num_ctr_found))
     print('\tNumber of DIO port\'s found:  ' + str(num_dio_found))
+    print('\tNumber of Ctr channel\'s found:  ' + str(num_ctr_found))
 
-    input('\n\nPrint channel properties?')
+    resp = input('\n\nPrint channel properties (default y)?') or 'y'
+    if resp == 'y':
+        util.clear_screen()
+        print("Device " + str(board_num) + " selected: " +
+              prod_name + " (" + prod_id + ")\n")
+        print('  BoardInfo\n')
+        if num_ad_found > 0:
+            more_chans = False
+            num_found = num_ad_found
+            first_chan = 0
+            if num_ad_found > 16:
+                num_found = 16
+                more_chans = True
+            while first_chan < num_ad_found:
+                print("{:<16}".format('AD Channel: '), end = '')
+                for ad_chan in range(first_chan, num_found):
+                    print("{:<6}".format('CH' + str(ad_chan)), end = '')
+                print()
+                cfg_item = BoardInfo.ADCHANAIMODE
+                print("{:<16}".format(cfg_item.name), end = '')
+                for ad_chan in range(first_chan, num_found):
+                    try:
+                        cfg_val = ul.get_config(InfoType.BOARDINFO, board_num, ad_chan, cfg_item)
+                        print("{:<6}".format(cfg_val), end = '')
+                    except ULError as e:
+                        print("{:<6}".format('__'), end = '')
+                print()
+                cfg_item = BoardInfo.ADCHANTYPE
+                print("{:<16}".format(cfg_item.name), end = '')
+                for ad_chan in range(first_chan, num_found):
+                    try:
+                        cfg_val = ul.get_config(InfoType.BOARDINFO, board_num, ad_chan, cfg_item)
+                        print("{:<6}".format(cfg_val), end = '')
+                    except ULError as e:
+                        print("{:<6}".format('__'), end = '')
+                print()
+                cfg_item = BoardInfo.ADDATARATE
+                print("{:<16}".format(cfg_item.name), end = '')
+                for ad_chan in range(first_chan, num_found):
+                    try:
+                        cfg_val = ul.get_config(InfoType.BOARDINFO, board_num, ad_chan, cfg_item)
+                        print("{:<6}".format(cfg_val), end = '')
+                    except ULError as e:
+                        print("{:<6}".format('__'), end = '')
+                print()
+                cfg_item = BoardInfo.CHANTCTYPE
+                print("{:<16}".format(cfg_item.name), end = '')
+                for ad_chan in range(first_chan, num_found):
+                    try:
+                        cfg_val = ul.get_config(InfoType.BOARDINFO, board_num, ad_chan, cfg_item)
+                        print("{:<6}".format(cfg_val), end = '')
+                    except ULError as e:
+                        print("{:<6}".format('__'), end = '')
+                print()
+                cfg_item = BoardInfo.RANGE
+                print("{:<16}".format(cfg_item.name), end = '')
+                for ad_chan in range(first_chan, num_found):
+                    try:
+                        cfg_val = ul.get_config(InfoType.BOARDINFO, board_num, ad_chan, cfg_item)
+                        print("{:<6}".format(cfg_val), end = '')
+                    except ULError as e:
+                        print("{:<6}".format('__'), end = '')
+                print('\n')
+                first_chan = num_found
+                if (num_ad_found - first_chan) > 16:
+                    num_found = first_chan + 16
+                else:
+                    num_found = num_ad_found
+
+        if num_da_found > 0:
+            print("{:<16}".format('DA Channel: '), end = '')
+            for da_chan in range(0, num_da_found):
+                print("{:<6}".format('CH' + str(da_chan)), end = '')
+            print()
+            cfg_item = BoardInfo.DACRANGE
+            print("{:<16}".format(cfg_item.name), end = '')
+            for da_chan in range(0, num_da_found):
+                try:
+                    cfg_val = ul.get_config(InfoType.BOARDINFO, board_num, da_chan, cfg_item)
+                    print("{:<6}".format(cfg_val), end = '')
+                except ULError as e:
+                    print("{:<6}".format('__'), end = '')
+            print('\n')
+
+        if num_dio_found > 0:
+            print("{:<16}".format('DIO Port: '), end = '')
+            for dio_port in range(0, num_dio_found):
+                print("{:<6}".format('CH' + str(dio_port)), end = '')
+            print()
+            cfg_item = DigitalInfo.DEVTYPE
+            print("{:<16}".format(cfg_item.name), end = '')
+            for dio_port in range(0, num_dio_found):
+                try:
+                    cfg_val = ul.get_config(InfoType.DIGITALINFO, board_num, dio_port, cfg_item)
+                    print("{:<6}".format(cfg_val), end = '')
+                except ULError as e:
+                    print("{:<6}".format('__'), end = '')
+            print('')
+            cfg_item = DigitalInfo.CONFIG
+            print("{:<16}".format(cfg_item.name), end = '')
+            for dio_port in range(0, num_dio_found):
+                try:
+                    cfg_val = ul.get_config(InfoType.DIGITALINFO, board_num, dio_port, cfg_item)
+                    print("{:<6}".format(cfg_val), end = '')
+                except ULError as e:
+                    print("{:<6}".format('__'), end = '')
+            print()
+            cfg_item = DigitalInfo.NUMBITS
+            print("{:<16}".format(cfg_item.name), end = '')
+            for dio_port in range(0, num_dio_found):
+                try:
+                    cfg_val = ul.get_config(InfoType.DIGITALINFO, board_num, dio_port, cfg_item)
+                    print("{:<6}".format(cfg_val), end = '')
+                except ULError as e:
+                    print("{:<6}".format('__'), end = '')
+            print()
+            cfg_item = DigitalInfo.CURVAL
+            print("{:<16}".format(cfg_item.name), end = '')
+            for dio_port in range(0, num_dio_found):
+                try:
+                    cfg_val = ul.get_config(InfoType.DIGITALINFO, board_num, dio_port, cfg_item)
+                    print("{:<6}".format(cfg_val), end = '')
+                except ULError as e:
+                    print("{:<6}".format('__'), end = '')
+            print()
+            cfg_item = DigitalInfo.INMASK
+            print("{:<16}".format(cfg_item.name), end = '')
+            for dio_port in range(0, num_dio_found):
+                try:
+                    cfg_val = ul.get_config(InfoType.DIGITALINFO, board_num, dio_port, cfg_item)
+                    print("{:<6}".format(cfg_val), end = '')
+                except ULError as e:
+                    print("{:<6}".format('__'), end = '')
+            print()
+            cfg_item = DigitalInfo.OUTMASK
+            print("{:<16}".format(cfg_item.name), end = '')
+            for dio_port in range(0, num_dio_found):
+                try:
+                    cfg_val = ul.get_config(InfoType.DIGITALINFO, board_num, dio_port, cfg_item)
+                    print("{:<6}".format(cfg_val), end = '')
+                except ULError as e:
+                    print("{:<6}".format('__'), end = '')
+            print()
+            cfg_item = DigitalInfo.INITPORTVAL
+            print("{:<16}".format(cfg_item.name), end = '')
+            for dio_port in range(0, num_dio_found):
+                try:
+                    cfg_val = ul.get_config(InfoType.DIGITALINFO, board_num, dio_port, cfg_item)
+                    print("{:<6}".format(cfg_val), end = '')
+                except ULError as e:
+                    print("{:<6}".format('__'), end = '')
+            print('\n')
+
+        if num_ctr_found > 0:
+            print("{:<16}".format('Ctr Chan: '), end = '')
+            for ctr_num in range(0, num_ctr_found):
+                print("{:<6}".format('CH' + str(ctr_num)), end = '')
+            print()
+            cfg_item = CounterInfo.CTRNUM
+            print("{:<16}".format(cfg_item.name), end = '')
+            for ctr_num in range(0, num_ctr_found):
+                try:
+                    cfg_val = ul.get_config(InfoType.COUNTERINFO, board_num, ctr_num, cfg_item)
+                    print("{:<6}".format(cfg_val), end = '')
+                except ULError as e:
+                    print("{:<6}".format('__'), end = '')
+            print()
+            cfg_item = CounterInfo.CTRTYPE
+            print("{:<16}".format(cfg_item.name), end = '')
+            for ctr_num in range(0, num_ctr_found):
+                try:
+                    cfg_val = ul.get_config(InfoType.COUNTERINFO, board_num, ctr_num, cfg_item)
+                    print("{:<6}".format(cfg_val), end = '')
+                except ULError as e:
+                    print("{:<6}".format('__'), end = '')
+            print('\n')
 
     if use_device_detection:
         ul.release_daq_device(board_num)
