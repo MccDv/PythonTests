@@ -71,9 +71,7 @@ def run_example():
         cfg_len = 24
         index = 0
 
-        obs_items = {BoardInfo.INITIALIZED, BoardInfo.PARENTBOARD, DigitalInfo.BASEADR,
-        DigitalInfo.INITIALIZED, DigitalInfo.MASK, DigitalInfo.READWRITE,
-        CounterInfo.BASEADR, CounterInfo.INITIALIZED, CounterInfo.CONFIGBYTE, BoardInfo.NOITEM}
+        obs_items = {BoardInfo.INITIALIZED, BoardInfo.PARENTBOARD, BoardInfo.NOITEM}
 
         undoc_items = {BoardInfo.ACCOUPLED, BoardInfo.BOARDTEMP, BoardInfo.RELAYLOGIC,
         BoardInfo.OPENRELAYLEVEL, BoardInfo.DEFAULTIP, BoardInfo.CURRENTIP,
@@ -178,6 +176,7 @@ def run_example():
           prod_name + " (" + prod_id + ")\n")
     print('  DigitalInfo\n')
     index = 0
+    obs_items = {DigitalInfo.BASEADR, DigitalInfo.INITIALIZED, DigitalInfo.MASK, DigitalInfo.READWRITE}
     for cfg_item in DigitalInfo:
         if cfg_item in obs_items:
             continue
@@ -213,6 +212,7 @@ def run_example():
           prod_name + " (" + prod_id + ")\n")
     print('  CounterInfo\n')
     index = 0
+    obs_items = {CounterInfo.BASEADR, CounterInfo.INITIALIZED, CounterInfo.CONFIGBYTE}
     for cfg_item in CounterInfo:
         if cfg_item in obs_items:
             continue
