@@ -19,7 +19,7 @@ import tkinter as tk
 from mcculw import ul
 from mcculw.enums import ULRange
 from mcculw.ul import ULError
-from mcculw.device_info import AoInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error, validate_float_entry
@@ -41,13 +41,17 @@ class ULAO01(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()    
 
-            self.ao_info = AoInfo(self.board_num)
+            device_info = DaqDeviceInfo(self.board_num)
+            self.ao_info = device_info.get_ao_info()
             if self.ao_info.is_supported:
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def update_value(self):
         channel = self.get_channel_num()
@@ -95,6 +99,8 @@ class ULAO01(UIExample):
         float_vcmd = self.register(validate_float_entry)
 
         curr_row = 0
+        self.device_label = tk.Label(main_frame)
+        self.device_label.grid(row=curr_row, column=2, sticky=tk.W)
         if self.ao_info.num_chans > 1:
             channel_vcmd = self.register(self.validate_channel_entry)
 

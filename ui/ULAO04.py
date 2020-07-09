@@ -28,7 +28,7 @@ from ctypes import cast, POINTER, c_double
 from mcculw import ul
 from mcculw.enums import Status, FunctionType, ScanOptions
 from mcculw.ul import ULError
-from mcculw.device_info import AoInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error, validate_float_entry
@@ -50,13 +50,17 @@ class ULAO04(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()    
 
-            self.ao_info = AoInfo(self.board_num)
+            device_info = DaqDeviceInfo(self.board_num)
+            self.ao_info = device_info.get_ao_info()
             if self.ao_info.is_supported and self.ao_info.supports_scan:
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def start_scan(self):
         # Build the data array
@@ -243,9 +247,11 @@ class ULAO04(UIExample):
         main_frame.pack(fill=tk.X, anchor=tk.NW)
 
         curr_row = 0
+        self.device_label = tk.Label(main_frame)
         if self.ao_info.num_chans > 1:
             channel_vcmd = self.register(self.validate_channel_entry)
 
+            self.device_label.grid(row=curr_row, column=2, sticky=tk.W)
             low_channel_entry_label = tk.Label(main_frame)
             low_channel_entry_label["text"] = "Low Channel Number:"
             low_channel_entry_label.grid(
@@ -273,6 +279,9 @@ class ULAO04(UIExample):
             initial_value = min(self.ao_info.num_chans - 1, 3)
             self.high_channel_entry.delete(0, tk.END)
             self.high_channel_entry.insert(0, str(initial_value))
+        else:
+            self.device_label.grid(row=curr_row, column=0, sticky=tk.W)
+
 
         scan_info_group = tk.LabelFrame(
             self, text="Scan Information", padx=3, pady=3)

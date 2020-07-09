@@ -18,8 +18,9 @@ from builtins import *  # @UnusedWildImport
 import tkinter as tk
 
 from mcculw import ul
+from mcculw.enums import CounterChannelType
 from mcculw.ul import ULError
-from mcculw.device_info import CtrInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error
@@ -34,7 +35,7 @@ class ULCT07(UIExample):
         # first device listed.
         # If use_device_detection is set to False, the board_num property needs
         # to match the desired board number configured with Instacal.
-        use_device_detection = True
+        use_device_detection = False
         self.board_num = 0
 
         self.running = False
@@ -43,13 +44,17 @@ class ULCT07(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()
 
-            self.ctr_info = CtrInfo(self.board_num)
+            device_info = DaqDeviceInfo(self.board_num)
+            self.ctr_info = device_info.get_ctr_info()
             if self.ctr_info.is_supported:
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def update_value(self):
         channel = self.get_channel_num()
@@ -116,21 +121,30 @@ class ULCT07(UIExample):
         channel_vcmd = self.register(self.validate_channel_entry)
 
         curr_row = 0
-        if self.ctr_info.num_chans > 1:
+        self.device_label = tk.Label(main_frame)
+
+        chan_info_list = self.ctr_info.chan_info
+        if chan_info_list[0].type == CounterChannelType.CTREVENT:
+            first_chan = chan_info_list[0].channel_num
+        for ctr_index in range(self.ctr_info.num_chans):
+            if chan_info_list[ctr_index].type == CounterChannelType.CTREVENT:
+                last_chan = chan_info_list[ctr_index].channel_num
+
+        if last_chan > first_chan:
             channel_entry_label = tk.Label(main_frame)
             channel_entry_label["text"] = "Channel Number:"
             channel_entry_label.grid(
                 row=curr_row, column=0, sticky=tk.W)
 
-            chan_info_list = self.ctr_info.chan_info
-            first_chan = chan_info_list[0].channel_num
-            last_chan = chan_info_list[len(chan_info_list) - 1].channel_num
             self.channel_entry = tk.Spinbox(
                 main_frame, from_=first_chan, to=last_chan,
                 validate='key', validatecommand=(channel_vcmd, '%P'))
             self.channel_entry.grid(row=curr_row, column=1, sticky=tk.W)
+            self.device_label.grid(row=curr_row, column=2, sticky=tk.W)
+        else:
+            self.device_label.grid(row=curr_row, column=0, sticky=tk.W)
 
-            curr_row += 1
+        curr_row += 1
 
         value_left_label = tk.Label(main_frame)
         value_left_label["text"] = "Value read from selected channel:"

@@ -25,7 +25,7 @@ from ctypes import cast, POINTER, c_double
 from mcculw import ul
 from mcculw.enums import ScanOptions
 from mcculw.ul import ULError
-from mcculw.device_info import AiInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error
@@ -47,17 +47,21 @@ class ULAI15(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()    
 
-            self.ai_info = AiInfo(self.board_num)
+            device_info = DaqDeviceInfo(self.board_num)
+            self.ai_info = device_info.get_ai_info()
             example_supported = (self.ai_info.is_supported 
                                  and self.ai_info.supports_scan
                                  and ScanOptions.SCALEDATA in
                                  self.ai_info.supported_scan_options)
             if example_supported:
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def start_scan(self):
         low_chan = self.get_low_channel_num()
@@ -174,6 +178,8 @@ class ULAI15(UIExample):
         main_frame.pack(fill=tk.X, anchor=tk.NW)
 
         curr_row = 0
+        self.device_label = tk.Label(main_frame)
+        self.device_label.grid(row=curr_row, column=2, sticky=tk.W)
         if self.ai_info.num_chans > 1:
             channel_vcmd = self.register(self.validate_channel_entry)
 

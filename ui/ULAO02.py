@@ -27,7 +27,7 @@ from ctypes import cast, POINTER, c_ushort
 
 from mcculw import ul
 from mcculw.ul import ULError
-from mcculw.device_info import AoInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error, validate_float_entry
@@ -49,13 +49,17 @@ class ULAO02(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()    
 
-            self.ao_info = AoInfo(self.board_num)
+            device_info = DaqDeviceInfo(self.board_num)
+            self.ao_info = device_info.get_ao_info()
             if self.ao_info.is_supported and self.ao_info.supports_scan:
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def send_data(self):
         # Build the data array
@@ -105,6 +109,9 @@ class ULAO02(UIExample):
         '''Create the tkinter UI'''
         main_frame = tk.Frame(self)
         main_frame.pack(fill=tk.X, anchor=tk.NW)
+
+        self.device_label = tk.Label(main_frame)
+        self.device_label.pack(fill=tk.NONE, anchor=tk.NW)
 
         data_frame = tk.Frame(main_frame)
         data_frame.pack(fill=tk.X, anchor=tk.NW)

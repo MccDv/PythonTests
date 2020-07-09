@@ -34,7 +34,7 @@ from ctypes import cast, POINTER, c_ushort, c_ulong, c_double
 from mcculw import ul
 from mcculw.enums import ScanOptions, Status, FunctionType
 from mcculw.ul import ULError
-from mcculw.device_info import AiInfo, AoInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error
@@ -56,18 +56,22 @@ class ULAIO01(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()    
 
-            self.ai_info = AiInfo(self.board_num)
-            self.ao_info = AoInfo(self.board_num)
+            device_info = DaqDeviceInfo(self.board_num)
+            self.ai_info = device_info.get_ai_info()
+            self.ao_info = device_info.get_ao_info()
             example_supported = (self.ai_info.is_supported 
                                  and self.ai_info.supports_scan
                                  and self.ao_info.is_supported
                                  and self.ao_info.supports_scan)
             if example_supported:
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def start_input_scan(self):
         self.input_low_chan = self.get_input_low_channel_num()
@@ -445,8 +449,11 @@ class ULAIO01(UIExample):
         main_frame = tk.Frame(self)
         main_frame.pack(fill=tk.X, anchor=tk.NW)
 
+        self.device_label = tk.Label(main_frame)
+        self.device_label.pack(side=tk.TOP, anchor=tk.NW)
+
         input_groupbox = tk.LabelFrame(main_frame, text="Analog Input")
-        input_groupbox.pack(side=tk.LEFT, anchor=tk.NW)
+        input_groupbox.pack(side=tk.LEFT, anchor=tk.W)
 
         if self.ai_info.num_chans > 1:
             curr_row = 0
