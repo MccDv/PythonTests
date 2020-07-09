@@ -23,7 +23,7 @@ import tkinter as tk
 from mcculw import ul
 from mcculw.enums import TempScale, ErrorCode
 from mcculw.ul import ULError
-from mcculw.device_info import AiInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error
@@ -47,13 +47,17 @@ class ULTI02(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()
 
-            self.ai_info = AiInfo(self.board_num)
+            device_info = DaqDeviceInfo(self.board_num)
+            self.ai_info = device_info.get_ai_info()
             if self.ai_info.temp_supported:
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def update_values(self):
         try:
@@ -65,6 +69,7 @@ class ULTI02(UIExample):
             # Check err_code for OUTOFRANGE or OPENCONNECTION. All other
             # error codes will raise a ULError and are checked by the except
             # clause.
+            self.warning_label["text"] = ("")
             if err_code == ErrorCode.OUTOFRANGE:
                 self.warning_label["text"] = (
                     "A thermocouple input is out of range.")
@@ -182,6 +187,9 @@ class ULTI02(UIExample):
                 validate='key', validatecommand=(channel_vcmd, '%P'))
             self.low_channel_entry.grid(
                 row=curr_row, column=1, sticky=tk.W)
+
+            self.device_label = tk.Label(main_frame)
+            self.device_label.grid(row=curr_row, column=2, sticky=tk.W)
 
             curr_row += 1
             high_channel_entry_label = tk.Label(main_frame)

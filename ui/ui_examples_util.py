@@ -35,11 +35,11 @@ class UIExample(tk.Frame, object):
         if error:
             incompatible_label["text"] = (
                 "Board " + str(self.board_num)
-                + " was not found.")
+                    + " was not found.")
         else:
             incompatible_label["text"] = (
                 "Board " + str(self.board_num)
-                + " is not compatible with this example.")
+                    + " is not compatible with this example.")
         incompatible_label.pack(fill=tk.X, side=tk.LEFT, anchor=tk.NW)
 
         button_frame = tk.Frame(self)

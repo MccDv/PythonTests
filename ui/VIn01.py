@@ -19,7 +19,7 @@ from tkinter.ttk import Combobox  # @UnresolvedImport
 
 from mcculw import ul
 from mcculw.ul import ULError
-from mcculw.device_info import AiInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error
@@ -42,13 +42,18 @@ class VIn01(UIExample):
         try:
             if use_device_detection:
                 self.configure_first_detected_device()
-            self.ai_info = AiInfo(self.board_num)
+                
+            device_info = DaqDeviceInfo(self.board_num)
+            self.ai_info = device_info.get_ai_info()
             if self.ai_info.is_supported and self.ai_info.supports_v_in:
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def update_value(self):
         channel = self.get_channel_num()
@@ -120,6 +125,9 @@ class VIn01(UIExample):
         channel_entry_label = tk.Label(main_frame)
         channel_entry_label["text"] = "Channel Number:"
         channel_entry_label.grid(row=curr_row, column=0, sticky=tk.W)
+
+        self.device_label = tk.Label(main_frame)
+        self.device_label.grid(row=curr_row, column=2, sticky=tk.W)
 
         self.channel_entry = tk.Spinbox(
             main_frame, from_=0,

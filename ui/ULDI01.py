@@ -38,8 +38,8 @@ class ULDI01(UIExample):
         # first device listed.
         # If use_device_detection is set to False, the board_num property needs
         # to match the desired board number configured with Instacal.
-        use_device_detection = True
-        self.board_num = 0
+        use_device_detection = False
+        self.board_num = 1
 
         self.running = False
 

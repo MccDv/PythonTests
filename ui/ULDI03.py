@@ -28,7 +28,7 @@ from ctypes import cast, POINTER, c_ushort
 from mcculw import ul
 from mcculw.enums import ScanOptions, Status, FunctionType, DigitalIODirection
 from mcculw.ul import ULError
-from mcculw.device_info import DioInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error
@@ -50,7 +50,8 @@ class ULDI03(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()
 
-            dio_info = DioInfo(self.board_num)
+            device_info = DaqDeviceInfo(self.board_num)
+            dio_info = device_info.get_dio_info()
             # Find the first port that supports input, defaulting to None
             # if one is not found.
             self.port = next((port for port in dio_info.port_info
@@ -58,11 +59,14 @@ class ULDI03(UIExample):
 
             if self.port is not None:
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
 
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def start_scan(self):
         rate = 100
@@ -168,6 +172,9 @@ class ULDI03(UIExample):
         '''Create the tkinter UI'''
         main_frame = tk.Frame(self)
         main_frame.pack(fill=tk.X, anchor=tk.NW)
+
+        self.device_label = tk.Label(main_frame)
+        self.device_label.pack(fill=tk.NONE, anchor=tk.NW)
 
         self.results_group = tk.LabelFrame(
             self, text="Results", padx=3, pady=3)

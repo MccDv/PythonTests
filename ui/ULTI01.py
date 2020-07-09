@@ -22,7 +22,7 @@ import tkinter as tk
 from mcculw import ul
 from mcculw.enums import TempScale
 from mcculw.ul import ULError
-from mcculw.device_info import AiInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error
@@ -46,13 +46,17 @@ class ULTI01(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()
 
-            self.ai_info = AiInfo(self.board_num)
+            device_info = DaqDeviceInfo(self.board_num)
+            self.ai_info = device_info.get_ai_info()
             if self.ai_info.temp_supported:
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def update_value(self):
         channel = self.get_channel_num()
@@ -111,6 +115,7 @@ class ULTI01(UIExample):
         channel_vcmd = self.register(self.validate_channel_entry)
 
         curr_row = 0
+        self.device_label = tk.Label(main_frame)
         if self.ai_info.num_temp_chans > 1:
             channel_entry_label = tk.Label(main_frame)
             channel_entry_label["text"] = "Channel Number:"
@@ -122,8 +127,12 @@ class ULTI01(UIExample):
                 to=max(self.ai_info.num_temp_chans - 1, 0),
                 validate='key', validatecommand=(channel_vcmd, '%P'))
             self.channel_entry.grid(row=curr_row, column=1, sticky=tk.W)
+            self.device_label.grid(row=curr_row, column=2, sticky=tk.W)
 
             curr_row += 1
+        else:
+            self.device_label.grid(row=curr_row, column=0, sticky=tk.W)
+
 
         value_left_label = tk.Label(main_frame)
         value_left_label["text"] = (

@@ -22,7 +22,7 @@ import tkinter as tk
 from mcculw import ul
 from mcculw.enums import DigitalIODirection
 from mcculw.ul import ULError
-from mcculw.device_info import DioInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error
@@ -46,7 +46,8 @@ class ULDI06(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()
 
-            dio_info = DioInfo(self.board_num)
+            device_info = DaqDeviceInfo(self.board_num)
+            dio_info = device_info.get_dio_info()
 
             # Find the first port that supports input, defaulting to None
             # if one is not found.
@@ -56,11 +57,14 @@ class ULDI06(UIExample):
 
             if self.port is not None:
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
 
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def update_value(self):
         try:
@@ -106,6 +110,10 @@ class ULDI06(UIExample):
         main_frame.pack(fill=tk.X, anchor=tk.NW)
 
         curr_row = 0
+        self.device_label = tk.Label(main_frame)
+        self.device_label.grid(row=curr_row, column=0, sticky=tk.W)
+
+        curr_row += 1
         raw_value_left_label = tk.Label(main_frame)
         raw_value_left_label["text"] = (
             self.port.type.name + " bit " + str(self.port.first_bit)

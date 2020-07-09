@@ -22,7 +22,7 @@ from tkinter import StringVar
 from mcculw import ul
 from mcculw.enums import DigitalIODirection
 from mcculw.ul import ULError
-from mcculw.device_info import DioInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import (UIExample, show_ul_error,
@@ -47,7 +47,8 @@ class ULDO01(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()
 
-            dio_info = DioInfo(self.board_num)
+            device_info = DaqDeviceInfo(self.board_num)
+            dio_info = device_info.get_dio_info()
 
             # Find the first port that supports output, defaulting to None
             # if one is not found.
@@ -63,10 +64,13 @@ class ULDO01(UIExample):
                     except ULError as e:
                         show_ul_error(e)
                 self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
             else:
                 self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def get_data_value(self):
         try:
@@ -99,6 +103,10 @@ class ULDO01(UIExample):
         positive_int_vcmd = self.register(validate_positive_int_entry)
 
         curr_row = 0
+        self.device_label = tk.Label(main_frame)
+        self.device_label.grid(row=curr_row, column=0, sticky=tk.W)
+
+        curr_row += 1
         value_label = tk.Label(main_frame)
         value_label["text"] = "Value:"
         value_label.grid(row=curr_row, column=0, sticky=tk.W)
@@ -108,6 +116,7 @@ class ULDO01(UIExample):
             main_frame, from_=0, to=255, textvariable=self.data_value_variable,
             validate="key", validatecommand=(positive_int_vcmd, "%P"))
         self.data_value_entry.grid(row=curr_row, column=1, sticky=tk.W)
+        self.data_value_variable.set("0")
         self.data_value_variable.trace("w", self.data_value_changed)
 
         button_frame = tk.Frame(self)
