@@ -28,7 +28,7 @@ from mcculw import ul
 from mcculw.enums import (CounterChannelType, CounterMode, CounterDebounceTime,
                           CounterEdgeDetection, CounterTickSize)
 from mcculw.ul import ULError
-from mcculw.device_info import CtrInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error
@@ -52,7 +52,9 @@ class CInScan03(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()
 
-            counter_info = CtrInfo(self.board_num)
+            device_is_compatible = False
+            device_info = DaqDeviceInfo(self.board_num)
+            counter_info = device_info.get_ctr_info()
 
             chan = next(
                 (channel for channel in counter_info.chan_info
@@ -65,10 +67,17 @@ class CInScan03(UIExample):
                      if channel.type == CounterChannelType.CTRSCAN), None)
             if chan:
                 self.chan_num = chan.channel_num
+                device_is_compatible = True
 
-            self.create_widgets()
+            if device_is_compatible:
+                self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
+            else:
+                self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def start_scan(self):
         rate = 100
@@ -134,6 +143,9 @@ class CInScan03(UIExample):
     def create_widgets(self):
         '''Create the tkinter UI'''
         if self.chan_num != -1:
+            self.device_label = tk.Label(self)
+            self.device_label.pack(fill=tk.NONE, anchor=tk.NW)
+
             info_text = tk.Label(self)
             info_text["text"] = (
                 "Encoder scan on device " + str(self.board_num)

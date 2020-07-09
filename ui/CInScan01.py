@@ -24,7 +24,7 @@ from ctypes import cast, POINTER, c_ulong
 from mcculw import ul
 from mcculw.enums import CounterChannelType
 from mcculw.ul import ULError
-from mcculw.device_info import CtrInfo
+from mcculw.device_info import DaqDeviceInfo
 
 try:
     from ui_examples_util import UIExample, show_ul_error
@@ -49,7 +49,9 @@ class CInScan01(UIExample):
             if use_device_detection:
                 self.configure_first_detected_device()
 
-            counter_info = CtrInfo(self.board_num)
+            device_is_compatible = False
+            device_info = DaqDeviceInfo(self.board_num)
+            counter_info = device_info.get_ctr_info()
 
             min_chan = next(
                 (channel for channel in counter_info.chan_info
@@ -57,6 +59,7 @@ class CInScan01(UIExample):
                  or channel.type == CounterChannelType.CTRQUAD), None)
             if min_chan is not None:
                 self.min_chan_num = min_chan.channel_num
+                device_is_compatible = True
 
             max_chan = next(
                 (channel for channel
@@ -66,9 +69,15 @@ class CInScan01(UIExample):
             if max_chan is not None:
                 self.max_chan_num = max_chan.channel_num
 
-            self.create_widgets()
+            if device_is_compatible:
+                self.create_widgets()
+                dev_name = device_info.product_name
+                self.device_label["text"] = (str(self.board_num)
+                    + ") " + dev_name)
+            else:
+                self.create_unsupported_widgets()
         except ULError:
-            self.create_unsupported_widgets()
+            self.create_unsupported_widgets(True)
 
     def start_scan(self):
         low_chan = self.get_low_channel_num()
@@ -188,6 +197,9 @@ class CInScan01(UIExample):
             low_channel_entry_label.grid(
                 row=curr_row, column=0, sticky=tk.W)
 
+            self.device_label = tk.Label(main_frame)
+            self.device_label.grid(row=curr_row, column=2, sticky=tk.W)
+            
             self.low_channel_entry = tk.Spinbox(
                 main_frame, from_=self.min_chan_num, to=self.max_chan_num,
                 validate='key', validatecommand=(channel_vcmd, '%P'))
