@@ -7,7 +7,7 @@ from builtins import *  # @UnusedWildImport
 
 from mcculw import ul
 from mcculw.enums import BoardInfo, InfoType, CounterChannelType
-from console import util
+import util
 from props.counter import CounterProps
 from mcculw.ul import ULError
 

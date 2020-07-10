@@ -7,7 +7,7 @@ from builtins import *  # @UnusedWildImport
 from mcculw import ul
 from mcculw.enums import ScanOptions, FunctionType, Status
 from mcculw.enums import BoardInfo, InfoType, ULRange
-from console import util
+import util
 from props.ai import AnalogInputProps
 from mcculw.ul import ULError
 

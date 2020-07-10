@@ -8,7 +8,7 @@ from mcculw import ul
 from mcculw.enums import BoardInfo, InfoType, CounterChannelType
 from mcculw.ul import ULError
 
-from console import util
+import util
 from props.counter import CounterProps
 
 def run_example():

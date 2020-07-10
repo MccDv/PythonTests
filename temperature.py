@@ -6,7 +6,7 @@ from mcculw.enums import BoardInfo, InfoType, TempScale
 from mcculw.ul import ULError
 from time import sleep
 
-from console import util
+import util
 from props.ai import AnalogInputProps
 import sys
 

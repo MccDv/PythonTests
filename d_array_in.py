@@ -5,7 +5,7 @@ from builtins import *  # @UnusedWildImport
 from mcculw import ul
 from mcculw.enums import DigitalIODirection
 from mcculw.enums import BoardInfo, InfoType, DigitalPortType
-from console import util
+import util
 from props.digital import DigitalProps
 from mcculw.ul import ULError
 from time import sleep

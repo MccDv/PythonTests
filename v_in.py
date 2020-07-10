@@ -4,7 +4,7 @@ from builtins import *  # @UnusedWildImport
 from mcculw import ul
 from mcculw.ul import ULError
 
-from console import util
+import util
 from props.ai import AnalogInputProps
 from mcculw.enums import BoardInfo, InfoType, ULRange
 from time import sleep
