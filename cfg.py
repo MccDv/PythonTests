@@ -5,7 +5,7 @@ from builtins import *  # @UnusedWildImport
 from mcculw import ul
 from mcculw.enums import BoardInfo, DigitalInfo, FirmwareVersionType
 from mcculw.enums import CounterInfo, ExpansionInfo, InfoType
-from console import util
+import util
 from props.counter import CounterProps
 from mcculw.ul import ULError
 from time import sleep
@@ -425,7 +425,7 @@ def run_example():
                     print("{:<6}".format(cfg_val), end = '')
                 except ULError as e:
                     print("{:<6}".format('__'), end = '')
-            print()
+            '''print()
             cfg_item = DigitalInfo.INITPORTVAL
             print("{:<16}".format(cfg_item.name), end = '')
             for dio_port in range(0, num_dio_found):
@@ -434,6 +434,7 @@ def run_example():
                     print("{:<6}".format(cfg_val), end = '')
                 except ULError as e:
                     print("{:<6}".format('__'), end = '')
+            '''
             print('\n')
 
         if num_ctr_found > 0:
