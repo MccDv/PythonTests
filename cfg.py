@@ -113,6 +113,10 @@ def run_example():
                     # crashes for some boards (WI 986976)
                     print('\t\tSkipped due to WI 986976')
                     continue
+                if cfg_item == BoardInfo.CHANCFG:
+                    # crashes for some boards (WI 1103687)
+                    print('\t\tSkipped due to WI 1103687')
+                    continue
                 switcher = {
                     BoardInfo.MFGSERIALNUM: True,
                     BoardInfo.NODEID: True,
